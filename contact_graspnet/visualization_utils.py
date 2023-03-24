@@ -90,10 +90,15 @@ def visualize_grasps(full_pc, pred_grasps_cam, scores, plot_opencv_cam=False, pc
     draw_pc_with_colors(full_pc, pc_colors)
     colors = [cm(1. * i/len(pred_grasps_cam))[:3] for i in range(len(pred_grasps_cam))]
     colors2 = {k:cm2(0.5*np.max(scores[k]))[:3] for k in pred_grasps_cam if np.any(pred_grasps_cam[k])}
+    print(np.where(scores[-1]==np.max(scores[-1]))[0], np.max(scores[-1]))
     
+    mlab.savefig(filename='results/before.png')
     if plot_opencv_cam:
         plot_coordinates(np.zeros(3,),np.eye(3,3))
     for i,k in enumerate(pred_grasps_cam):
+        # print(i,k, [pred_grasps_cam[k][np.argmax(scores[k])]])
+        print([np.argmax(scores[k])])
+        # if i==0:
         if np.any(pred_grasps_cam[k]):
             gripper_openings_k = np.ones(len(pred_grasps_cam[k]))*gripper_width if gripper_openings is None else gripper_openings[k]
             if len(pred_grasps_cam) > 1:
@@ -103,6 +108,7 @@ def visualize_grasps(full_pc, pred_grasps_cam, scores, plot_opencv_cam=False, pc
             else:
                 colors3 = [cm2(0.5*score)[:3] for score in scores[k]]
                 draw_grasps(pred_grasps_cam[k], np.eye(4), colors=colors3, gripper_openings=gripper_openings_k)    
+    mlab.savefig(filename='results/test.png')
     mlab.show()
 
 def draw_pc_with_colors(pc, pc_colors=None, single_color=(0.3,0.3,0.3), mode='2dsquare', scale_factor=0.0018):
@@ -155,7 +161,9 @@ def draw_grasps(grasps, cam_pose, gripper_openings, color=(0,1.,0), colors=None,
         tube_radius {float} -- Radius of the grasp wireframes (default: {0.0008})
         show_gripper_mesh {bool} -- Renders the gripper mesh for one of the grasp poses (default: {False})
     """
-
+    # print("here: ", grasps[0], end="\n")
+    # grasps = [grasps[72]]
+    # print("grasps: ", grasps)
     gripper = mesh_utils.create_gripper('panda')
     gripper_control_points = gripper.get_control_point_tensor(1, False, convex_hull=False).squeeze()
     mid_point = 0.5*(gripper_control_points[1, :] + gripper_control_points[2, :])
